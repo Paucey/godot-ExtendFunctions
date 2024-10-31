@@ -6144,7 +6144,7 @@ void GDScriptParser::TreePrinter::print_tree(const GDScriptParser &p_parser) {
 }
 
 void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body) {
-    if (type == function) {
+    if (type == Member::FUNCTION) {
         if (body) {
             // Assuming additional_body has statements to be added
             for (Node *statement : additional_body->statements) {

@@ -1212,6 +1212,10 @@ public:
 			locals.push_back(p_local);
 		}
 
+		void add_statement(Node *statement) {
+ 		   statements.push_back(statement);
+		}
+
 		SuiteNode() {
 			type = SUITE;
 		}

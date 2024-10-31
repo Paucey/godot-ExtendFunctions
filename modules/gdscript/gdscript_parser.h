@@ -797,17 +797,17 @@ public:
 		template <typename T>
 		void add_member(T *p_member_node) {
     			String name = p_member_node->identifier->name;
-    
-   			// Check if the function name already exists in `members_indices`
-			if (members_indices.has(name)) {
-     				// Retrieve the existing function's index
-      				int existing_index = members_indices[name];
-        
+
+    			// Check if the function name already exists in `members_indices`
+    			if (members_indices.has(name)) {
+        			// Retrieve the existing function's index
+        			int existing_index = members_indices[name];
+
         			// Access the existing function in the members list
-        			Member &existing_member = members[existing_index];
+        			Member &existing_member = members[existing_index]; // Ensure members is not const
 
         			// Append logic to the existing function's body
-        			existing_member.append_logic(p_member_node->body); // Define `append_logic` in Member as needed
+        			existing_member.append_logic(p_member_node->body);
     			} else {
         			// Otherwise, add as a new member
         			members_indices[name] = members.size();

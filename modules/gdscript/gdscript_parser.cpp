@@ -6149,7 +6149,7 @@ void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body)
             // Assuming additional_body has statements to be added
             for (Node *statement : additional_body->statements) {
                 function->body->add_statement(statement); // Add each statement to the existing body
-     //       }
+            }
    //     } else {
     //        function->body = additional_body; // If no body exists, assign it directly.
    //     }

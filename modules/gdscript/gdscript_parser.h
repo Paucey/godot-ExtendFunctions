@@ -783,8 +783,23 @@ public:
 		}
 		template <typename T>
 		void add_member(T *p_member_node) {
-			members_indices[p_member_node->identifier->name] = members.size();
-			members.push_back(Member(p_member_node));
+    			String name = p_member_node->identifier->name;
+    
+   			// Check if the function name already exists in `members_indices`
+			if (members_indices.has(name)) {
+     				// Retrieve the existing function's index
+      				int existing_index = members_indices[name];
+        
+        			// Access the existing function in the members list
+        			Member &existing_member = members[existing_index];
+
+        			// Append logic to the existing function's body
+        			existing_member.append_logic(p_member_node->body); // Define `append_logic` in Member as needed
+    			} else {
+        			// Otherwise, add as a new member
+        			members_indices[name] = members.size();
+        			members.push_back(Member(p_member_node));
+    			}
 		}
 		void add_member(const EnumNode::Value &p_enum_value) {
 			members_indices[p_enum_value.identifier->name] = members.size();

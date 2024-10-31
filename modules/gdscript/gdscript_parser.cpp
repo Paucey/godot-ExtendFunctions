@@ -6144,16 +6144,16 @@ void GDScriptParser::TreePrinter::print_tree(const GDScriptParser &p_parser) {
 }
 
 void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body) {
-    if (type == Member::FUNCTION) {
-        if (function->body) {
+   // if (type == Member::FUNCTION) {
+    //    if (function->body) {
             // Assuming additional_body has statements to be added
             for (Node *statement : additional_body->statements) {
                 function->body->add_statement(statement); // Add each statement to the existing body
-            }
-        } else {
-            function->body = additional_body; // If no body exists, assign it directly.
-        }
-    }
+     //       }
+   //     } else {
+    //        function->body = additional_body; // If no body exists, assign it directly.
+   //     }
+  //  }
 }
 
 void GDScriptParser::SuiteNode::add_statement(Node *statement) {

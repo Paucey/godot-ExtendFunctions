@@ -705,7 +705,7 @@ public:
 				ERR_FAIL_V_MSG(nullptr, "Reaching unhandled type.");
 			}
 
-			void Member::append_logic(SuiteNode *additional_body) {
+			void append_logic(SuiteNode *additional_body) {
     				if (function) {
         				if (function->body) {
             					// Assuming additional_body has statements to be added

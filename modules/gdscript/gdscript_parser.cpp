@@ -6156,4 +6156,8 @@ void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body)
     }
 }
 
+void GdScriptParser::SuiteNode::add_statement(Node *statement) {
+	statements.push_back(statement);
+}
+
 #endif // DEBUG_ENABLED

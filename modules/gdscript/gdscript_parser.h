@@ -806,10 +806,9 @@ public:
         			// Access the existing function in the members list
         			Member &existing_member = const_cast<Member&>(members[existing_index]);
 
-        			// Append logic to the existing function's body
-        			existing_member.append_logic(p_member_node->body);
+     				existing_member.append_logic(func_node->body);
     			} else {
-        			// Otherwise, add as a new member
+				// Otherwise, add as a new member
         			members_indices[name] = members.size();
         			members.push_back(Member(p_member_node));
     			}

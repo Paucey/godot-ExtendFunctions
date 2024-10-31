@@ -1210,9 +1210,7 @@ public:
 			locals.push_back(p_local);
 		}
 
-		void add_statement(Node *statement) {
- 		   statements.push_back(statement);
-		}
+		void add_statement(Node *statement);
 
 		SuiteNode() {
 			type = SUITE;

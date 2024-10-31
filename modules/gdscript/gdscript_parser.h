@@ -583,6 +583,8 @@ public:
 			};
 			EnumNode::Value enum_value;
 
+			void append_logic(SuiteNode *additional_body); // Method declaration
+
 			String get_name() const {
 				switch (type) {
 					case UNDEFINED:

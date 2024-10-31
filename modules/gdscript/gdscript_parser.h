@@ -809,7 +809,7 @@ public:
             				int existing_index = members_indices[name];
 
             				// Access the existing function in the members list
-            				Member &existing_member = members[existing_index];
+            				Member &existing_member = const_cast<Member&>(members[existing_index]);
 
             				// Append logic to the existing function's body
             				existing_member.append_logic(func_node->body);

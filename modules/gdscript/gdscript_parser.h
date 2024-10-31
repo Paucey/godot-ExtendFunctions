@@ -788,7 +788,7 @@ public:
 			members_indices[p_member_node->identifier->name] = members.size();
 			members.push_back(Member(p_member_node));
 		}
-		void add_duplicate_member(FunctionNode p_member_node) {
+		void add_duplicate_member(p_member_node) {
     			String name = p_member_node->identifier->name;
 
     			if (members_indices.has(name)) {

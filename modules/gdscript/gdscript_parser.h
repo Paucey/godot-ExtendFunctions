@@ -806,6 +806,7 @@ public:
         			// Access the existing function in the members list
         			Member &existing_member = const_cast<Member&>(members[existing_index]);
 
+				FunctionNode* func_node = static_cast<FunctionNode*>(p_member_node); // Cast to FunctionNode
      				existing_member.append_logic(func_node->body);
     			} else {
 				// Otherwise, add as a new member

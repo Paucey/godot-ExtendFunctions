@@ -705,15 +705,18 @@ public:
 				ERR_FAIL_V_MSG(nullptr, "Reaching unhandled type.");
 			}
 
-			void append_logic(Node *additional_body) {
-        			// Here, you would append additional logic to the function.
-       				// For instance, you might want to merge or combine the bodies of the functions.
-        
-        			if (function) {
-            				// Assuming FunctionNode has a way to append or combine logic.
-            				function->append_body(additional_body); // Hypothetical method for illustration.
-        			}
-    			}
+			void Member::append_logic(SuiteNode *additional_body) {
+    				if (function) {
+        				if (function->body) {
+            					// Assuming additional_body has statements to be added
+            					for (Node *statement : additional_body->statements) {
+                					function->body->add_statement(statement); // Add each statement to the existing body
+            					}
+        				} else {
+            					function->body = additional_body; // If no body exists, assign it directly.
+        				}
+    				}
+			}
 
 			Member() {}
 

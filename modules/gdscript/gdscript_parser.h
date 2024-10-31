@@ -799,15 +799,21 @@ public:
     			String name = p_member_node->identifier->name;
 
     			// Check if the function name already exists in `members_indices`
-    			if (members_indices.has(name) && (p_member_node->type == Member::FUNCTION)) {
-        			// Retrieve the existing function's index
-        			int existing_index = members_indices[name];
+    			if (members_indices.has(name)) {
+        			// Attempt to cast to FunctionNode
+        			FunctionNode *func_node = dynamic_cast<FunctionNode*>(p_member_node);
+        
+        			if (func_node) {
+            				// It's a FunctionNode
+            				// Retrieve the existing function's index
+            				int existing_index = members_indices[name];
 
-        			// Access the existing function in the members list
-        			Member &existing_member = const_cast<Member&>(members[existing_index]);
+            				// Access the existing function in the members list
+            				Member &existing_member = members[existing_index];
 
-				FunctionNode* func_node = static_cast<FunctionNode*>(p_member_node); // Cast to FunctionNode
-     				existing_member.append_logic(func_node->body);
+            				// Append logic to the existing function's body
+            				existing_member.append_logic(func_node->body);
+				}
     			} else {
 				// Otherwise, add as a new member
         			members_indices[name] = members.size();

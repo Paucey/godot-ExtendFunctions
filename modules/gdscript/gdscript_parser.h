@@ -785,26 +785,21 @@ public:
 		}
 		template <typename T>
 		void add_member(T *p_member_node) {
+			members_indices[p_member_node->identifier->name] = members.size();
+			members.push_back(Member(p_member_node));
+		}
+		void add_member(FunctionNode *p_member_node) {
     			String name = p_member_node->identifier->name;
 
-    			// Check if the function name already exists in `members_indices`
     			if (members_indices.has(name)) {
-        			// Attempt to cast to FunctionNode
-        			FunctionNode *func_node = dynamic_cast<FunctionNode*>(p_member_node);
-        
-        			if (func_node) {
-            				// It's a FunctionNode
-            				// Retrieve the existing function's index
-            				int existing_index = members_indices[name];
+        			// If the member already exists, retrieve it
+        			int existing_index = members_indices[name];
+        			Member &existing_member = members[existing_index];
 
-            				// Access the existing function in the members list
-            				Member &existing_member = members[existing_index];
-
-            				// Append logic to the existing function's body
-            				existing_member.append_logic(func_node->body);
-				}
+        			// Append logic to the existing function's body
+        			existing_member.append_logic(p_member_node->body);
     			} else {
-				// Otherwise, add as a new member
+        			// Otherwise, add as a new member
         			members_indices[name] = members.size();
         			members.push_back(Member(p_member_node));
     			}

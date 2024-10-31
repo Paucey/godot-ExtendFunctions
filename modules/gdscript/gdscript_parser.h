@@ -799,7 +799,7 @@ public:
     			String name = p_member_node->identifier->name;
 
     			// Check if the function name already exists in `members_indices`
-    			if (members_indices.has(name) && (p_member_node->type == "function")) {
+    			if (members_indices.has(name) && (p_member_node->type == FUNCTION)) {
         			// Retrieve the existing function's index
         			int existing_index = members_indices[name];
 

@@ -794,7 +794,7 @@ public:
     			if (members_indices.has(name)) {
         			// If the member already exists, retrieve it
         			int existing_index = members_indices[name];
-        			&existing_member = members[existing_index];
+        			Member &existing_member = Member(members[existing_index]);
 
         			// Append logic to the existing function's body
         			existing_member.append_logic(p_member_node->body);

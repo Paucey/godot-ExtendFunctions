@@ -973,7 +973,9 @@ void GDScriptParser::parse_class_member(T *(GDScriptParser::*p_parse_function)(b
 				if (p_member_kind != "function") {
 					push_error(vformat(R"(%s "%s" has the same name as a previously declared %s.)", p_member_kind.capitalize(), member->identifier->name, current_class->get_member(member->identifier->name).get_type_name()), member->identifier);
 				} else {
-					current_class->add_duplicate_member(member);
+					if (auto function_node = dynamic_cast<FunctionNode*>(member)) {
+						current_class->add_duplicate_member(function_node);
+					}
 				}
 			} else {
 				current_class->add_member(member);

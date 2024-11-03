@@ -5276,6 +5276,16 @@ void GDScriptParser::reset_extents(Node *p_node, Node *p_from) {
 	p_node->rightmost_column = p_from->rightmost_column;
 }
 
+void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body) {
+	for (Node *statement : additional_body->statements) {
+        	function->body->add_statement(statement); // Add each statement to the existing body
+        }
+}
+
+void GDScriptParser::SuiteNode::add_statement(Node *statement) {
+	statements.push_back(statement);
+}
+
 /*---------- PRETTY PRINT FOR DEBUG ----------*/
 
 #ifdef DEBUG_ENABLED
@@ -6145,23 +6155,6 @@ void GDScriptParser::TreePrinter::print_tree(const GDScriptParser &p_parser) {
 	print_class(p_parser.get_tree());
 
 	print_line(String(printed));
-}
-
-void GDScriptParser::ClassNode::Member::append_logic(SuiteNode *additional_body) {
-   // if (type == Member::FUNCTION) {
-    //    if (function->body) {
-            // Assuming additional_body has statements to be added
-            for (Node *statement : additional_body->statements) {
-                function->body->add_statement(statement); // Add each statement to the existing body
-            }
-   //     } else {
-    //        function->body = additional_body; // If no body exists, assign it directly.
-   //     }
-  //  }
-}
-
-void GDScriptParser::SuiteNode::add_statement(Node *statement) {
-	statements.push_back(statement);
 }
 
 #endif // DEBUG_ENABLED

@@ -1,29 +1,3 @@
-# Godot-ExtendFunctions
-
-Modifies the script parser to extend functions dynamically instead of treating duplicates as errors. It allows modular systems to inject additional logic into existing functions without modifying the original script—useful for adding modular extensions to existing scripts.
-
-## Features:
-- **Duplicate functions are merged** instead of causing errors.
-- **No need to modify core scripts** when adding modular functionality to them.
-- **Top-to-bottom execution order**, ensuring predictable behavior.
-
-## Example:
-```gdscript
-func _ready():
-    print("First Ready")
-
-func _ready():
-    print("Second Ready")
-
-# Execution Output:
-# "First Ready"
-# "Second Ready"
-
-```
-## Use Cases:
-- Extending lifecycle functions (_ready, _process) dynamically.
-- Creating modular gameplay mechanics without altering base scripts.
-
 # Godot Engine
 <p align="center">
   <a href="https://godotengine.org">

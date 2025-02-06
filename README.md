@@ -1,6 +1,6 @@
-# Godot-ExtendFunctions (Custom Godot Fork)
+# Godot-ExtendFunctions
 
-This custom fork of Godot modifies the script parser to extend functions dynamically instead of treating duplicates as errors. It allows modular systems to inject additional logic into existing functions without modifying the original script—useful for adding modular extensions to existing scripts.
+Modifies the script parser to extend functions dynamically instead of treating duplicates as errors. It allows modular systems to inject additional logic into existing functions without modifying the original script—useful for adding modular extensions to existing scripts.
 
 ## Features:
 - **Duplicate functions are merged** instead of causing errors.

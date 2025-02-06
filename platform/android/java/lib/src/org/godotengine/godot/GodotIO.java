@@ -30,13 +30,12 @@
 
 package org.godotengine.godot;
 
+import org.godotengine.godot.error.Error;
 import org.godotengine.godot.input.GodotEditText;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -47,7 +46,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.DisplayCutout;
-import android.view.Surface;
 import android.view.WindowInsets;
 
 import androidx.core.content.FileProvider;
@@ -121,15 +119,27 @@ public class GodotIO {
 			}
 
 			activity.startActivity(intent);
-			return 0;
+			return Error.OK.toNativeValue();
 		} catch (Exception e) {
 			Log.e(TAG, "Unable to open uri " + uriString, e);
-			return 1;
+			return Error.FAILED.toNativeValue();
 		}
 	}
 
 	public String getCacheDir() {
 		return activity.getCacheDir().getAbsolutePath();
+	}
+
+	public String getTempDir() {
+		File tempDir = new File(getCacheDir() + "/tmp");
+
+		if (!tempDir.exists()) {
+			if (!tempDir.mkdirs()) {
+				Log.e(TAG, "Unable to create temp dir");
+			}
+		}
+
+		return tempDir.getAbsolutePath();
 	}
 
 	public String getDataDir() {
@@ -293,28 +303,6 @@ public class GodotIO {
 			case ActivityInfo.SCREEN_ORIENTATION_LOCKED:
 			default:
 				return -1;
-		}
-	}
-
-	/**
-	 This function is used by DisplayServer::screen_get_internal_current_rotation (C++)
-		and is used to implement a performance optimization in devices that do not offer
-		a HW rotator.
-	 @return
-		Rotation in degrees, in multiples of 90°
-	*/
-	public int getInternalCurrentScreenRotation() {
-		int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-
-		switch (rotation) {
-			case Surface.ROTATION_90:
-				return 90;
-			case Surface.ROTATION_180:
-				return 180;
-			case Surface.ROTATION_270:
-				return 270;
-			default:
-				return 0;
 		}
 	}
 

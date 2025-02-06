@@ -44,7 +44,6 @@ import android.os.*
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
-import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
@@ -57,6 +56,7 @@ import com.google.android.vending.expansion.downloader.*
 import org.godotengine.godot.error.Error
 import org.godotengine.godot.input.GodotEditText
 import org.godotengine.godot.input.GodotInputHandler
+import org.godotengine.godot.io.FilePicker
 import org.godotengine.godot.io.directory.DirectoryAccessHandler
 import org.godotengine.godot.io.file.FileAccessHandler
 import org.godotengine.godot.plugin.AndroidRuntimePlugin
@@ -64,6 +64,7 @@ import org.godotengine.godot.plugin.GodotPlugin
 import org.godotengine.godot.plugin.GodotPluginRegistry
 import org.godotengine.godot.tts.GodotTTS
 import org.godotengine.godot.utils.CommandLineFileParser
+import org.godotengine.godot.utils.DialogUtils
 import org.godotengine.godot.utils.GodotNetUtils
 import org.godotengine.godot.utils.PermissionsUtil
 import org.godotengine.godot.utils.PermissionsUtil.requestPermission
@@ -677,6 +678,9 @@ class Godot(private val context: Context) {
 		for (plugin in pluginRegistry.allPlugins) {
 			plugin.onMainActivityResult(requestCode, resultCode, data)
 		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			FilePicker.handleActivityResult(context, requestCode, resultCode, data)
+		}
 	}
 
 	/**
@@ -741,6 +745,7 @@ class Godot(private val context: Context) {
 
 		runOnUiThread {
 			registerSensorsIfNeeded()
+			enableImmersiveMode(useImmersive.get(), true)
 		}
 
 		for (plugin in pluginRegistry.allPlugins) {
@@ -818,9 +823,26 @@ class Godot(private val context: Context) {
 	 * Returns true if `Vulkan` is used for rendering.
 	 */
 	private fun usesVulkan(): Boolean {
-		val renderer = GodotLib.getGlobal("rendering/renderer/rendering_method")
-		val renderingDevice = GodotLib.getGlobal("rendering/rendering_device/driver")
-		return ("forward_plus" == renderer || "mobile" == renderer) && "vulkan" == renderingDevice
+		var rendererSource = "ProjectSettings"
+		var renderer = GodotLib.getGlobal("rendering/renderer/rendering_method")
+		var renderingDeviceSource = "ProjectSettings"
+		var renderingDevice = GodotLib.getGlobal("rendering/rendering_device/driver")
+		val cmdline = getCommandLine()
+		var index = cmdline.indexOf("--rendering-method")
+		if (index > -1 && cmdline.size > index + 1) {
+			rendererSource = "CommandLine"
+			renderer = cmdline.get(index + 1)
+		}
+		index = cmdline.indexOf("--rendering-driver")
+		if (index > -1 && cmdline.size > index + 1) {
+			renderingDeviceSource = "CommandLine"
+			renderingDevice = cmdline.get(index + 1)
+		}
+		val result = ("forward_plus" == renderer || "mobile" == renderer) && "vulkan" == renderingDevice
+		Log.d(TAG, """usesVulkan(): ${result}
+			renderingDevice: ${renderingDevice} (${renderingDeviceSource})
+			renderer: ${renderer} (${rendererSource})""")
+		return result
 	}
 
 	/**
@@ -890,30 +912,50 @@ class Godot(private val context: Context) {
 		mClipboard.setPrimaryClip(clip)
 	}
 
-	/**
-	 * Popup a dialog to input text.
-	 */
 	@Keep
-	private fun showInputDialog(title: String, message: String, existingText: String) {
-		val activity: Activity = getActivity() ?: return
-		val inputField = EditText(activity)
-		val paddingHorizontal = activity.resources.getDimensionPixelSize(R.dimen.input_dialog_padding_horizontal)
-		val paddingVertical = activity.resources.getDimensionPixelSize(R.dimen.input_dialog_padding_vertical)
-		inputField.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
-		inputField.setText(existingText)
-		runOnUiThread {
-			val builder = AlertDialog.Builder(activity)
-			builder.setMessage(message).setTitle(title).setView(inputField)
-			builder.setPositiveButton(R.string.dialog_ok) {
-				dialog: DialogInterface, id: Int ->
-				GodotLib.inputDialogCallback(inputField.text.toString())
-				dialog.dismiss()
-			}
-			val dialog = builder.create()
-			dialog.show()
+	private fun showFilePicker(currentDirectory: String, filename: String, fileMode: Int, filters: Array<String>) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			FilePicker.showFilePicker(context, getActivity(), currentDirectory, filename, fileMode, filters)
 		}
 	}
 
+	/**
+	 * This method shows a dialog with multiple buttons.
+	 *
+	 * @param title The title of the dialog.
+	 * @param message The message displayed in the dialog.
+	 * @param buttons An array of button labels to display.
+	 */
+	@Keep
+	private fun showDialog(title: String, message: String, buttons: Array<String>) {
+		getActivity()?.let { DialogUtils.showDialog(it, title, message, buttons) }
+	}
+
+	/**
+	 * This method shows a dialog with a text input field, allowing the user to input text.
+	 *
+	 * @param title The title of the input dialog.
+	 * @param message The message displayed in the input dialog.
+	 * @param existingText The existing text that will be pre-filled in the input field.
+	 */
+	@Keep
+	private fun showInputDialog(title: String, message: String, existingText: String) {
+		getActivity()?.let { DialogUtils.showInputDialog(it, title, message, existingText) }
+	}
+
+	@Keep
+	private fun getAccentColor(): Int {
+		val value = TypedValue()
+		context.theme.resolveAttribute(android.R.attr.colorAccent, value, true)
+		return value.data
+	}
+
+	@Keep
+	private fun getBaseColor(): Int {
+		val value = TypedValue()
+		context.theme.resolveAttribute(android.R.attr.colorBackground, value, true)
+		return value.data
+	}
 
 	/**
 	 * Destroys the Godot Engine and kill the process it's running in.
@@ -952,15 +994,10 @@ class Godot(private val context: Context) {
 	}
 
 	fun onBackPressed() {
-		var shouldQuit = true
 		for (plugin in pluginRegistry.allPlugins) {
-			if (plugin.onMainBackPressed()) {
-				shouldQuit = false
-			}
+			plugin.onMainBackPressed()
 		}
-		if (shouldQuit) {
-			renderView?.queueOnRenderThread { GodotLib.back() }
-		}
+		renderView?.queueOnRenderThread { GodotLib.back() }
 	}
 
 	/**
@@ -1019,7 +1056,8 @@ class Godot(private val context: Context) {
 	}
 
 	fun requestPermission(name: String?): Boolean {
-		return requestPermission(name, getActivity())
+		val activity = getActivity() ?: return false
+		return requestPermission(name, activity)
 	}
 
 	fun requestPermissions(): Boolean {
@@ -1106,7 +1144,7 @@ class Godot(private val context: Context) {
 
 	@Keep
 	private fun createNewGodotInstance(args: Array<String>): Int {
-		return primaryHost?.onNewGodotInstanceRequested(args) ?: 0
+		return primaryHost?.onNewGodotInstanceRequested(args) ?: -1
 	}
 
 	@Keep

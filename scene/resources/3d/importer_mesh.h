@@ -32,7 +32,6 @@
 #define IMPORTER_MESH_H
 
 #include "core/io/resource.h"
-#include "core/templates/local_vector.h"
 #include "scene/resources/3d/concave_polygon_shape_3d.h"
 #include "scene/resources/3d/convex_polygon_shape_3d.h"
 #include "scene/resources/mesh.h"
@@ -113,7 +112,7 @@ public:
 
 	void set_surface_material(int p_surface, const Ref<Material> &p_material);
 
-	void optimize_indices_for_cache();
+	void optimize_indices();
 
 	void generate_lods(float p_normal_merge_angle, Array p_skin_pose_transform_array);
 
